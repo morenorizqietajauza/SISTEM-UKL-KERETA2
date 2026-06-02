@@ -18,14 +18,16 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Role } from 'src/auth/decorators/role.decorator';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@Controller('ticket')
 @ApiTags('Ticket')
 @ApiBearerAuth()
 @Controller('ticket')

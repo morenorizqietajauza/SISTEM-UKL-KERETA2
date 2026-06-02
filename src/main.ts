@@ -26,11 +26,18 @@ async function bootstrap() {
 
   // Swagger config
   const config = new DocumentBuilder()
-    .setTitle('Tiket Kereta')
-    .setDescription('BackEnd System for Train Ticket Application')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  .setTitle('Tiket Kereta')
+  .setDescription('BackEnd System for Train Ticket Application')
+  .setVersion('1.0')
+  .addBearerAuth(
+    {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    },
+    'access-token',
+  )
+  .build();
 
   const document = SwaggerModule.createDocument(app, config);
 
