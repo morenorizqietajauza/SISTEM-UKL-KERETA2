@@ -80,7 +80,10 @@ export class PelangganController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(UserRole.ADMIN)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updatePelangganDto: UpdatePelangganDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updatePelangganDto: UpdatePelangganDto,
+  ) {
     return await this.pelangganService.update(+id, updatePelangganDto);
   }
 

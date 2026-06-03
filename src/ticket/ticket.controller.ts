@@ -26,18 +26,18 @@ import {
 } from '@nestjs/swagger';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiBearerAuth()
+@ApiBearerAuth('access-token')
 @Controller('ticket')
 @ApiTags('Ticket')
-@ApiBearerAuth()
-@Controller('ticket')
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(UserRole.PENUMPANG)
   @Post()
-  @ApiOperation({ summary: 'Create ticket for one or more passengers (PENUMPANG)' })
+  @ApiOperation({
+    summary: 'Create ticket for one or more passengers (PENUMPANG)',
+  })
   @ApiBody({ type: CreateTicketDto })
   create(
     @CurrentUser('id') userId: number,
@@ -66,7 +66,9 @@ export class TicketController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(UserRole.PENUMPANG)
   @Get('mine')
-  @ApiOperation({ summary: 'View my ticket history by date or month (PENUMPANG)' })
+  @ApiOperation({
+    summary: 'View my ticket history by date or month (PENUMPANG)',
+  })
   @ApiQuery({ name: 'tanggal', required: false, description: 'YYYY-MM-DD' })
   @ApiQuery({ name: 'bulan', required: false, description: '1-12' })
   @ApiQuery({ name: 'tahun', required: false, description: 'YYYY' })
@@ -101,10 +103,7 @@ export class TicketController {
   @Get('mine/:id/nota')
   @ApiOperation({ summary: 'Get my ticket receipt / nota' })
   @ApiParam({ name: 'id', type: Number })
-  getMyReceipt(
-    @CurrentUser('id') userId: number,
-    @Param('id') id: string,
-  ) {
+  getMyReceipt(@CurrentUser('id') userId: number, @Param('id') id: string) {
     return this.ticketService.getMyReceipt(+id, userId);
   }
 
@@ -122,10 +121,7 @@ export class TicketController {
   @Get('mine/:id')
   @ApiOperation({ summary: 'Get my ticket detail by id' })
   @ApiParam({ name: 'id', type: Number })
-  findMineOne(
-    @CurrentUser('id') userId: number,
-    @Param('id') id: string,
-  ) {
+  findMineOne(@CurrentUser('id') userId: number, @Param('id') id: string) {
     return this.ticketService.findMineOne(+id, userId);
   }
 
@@ -153,10 +149,7 @@ export class TicketController {
   @Delete('mine/:id')
   @ApiOperation({ summary: 'Cancel my ticket' })
   @ApiParam({ name: 'id', type: Number })
-  removeMine(
-    @CurrentUser('id') userId: number,
-    @Param('id') id: string,
-  ) {
+  removeMine(@CurrentUser('id') userId: number, @Param('id') id: string) {
     return this.ticketService.removeMine(+id, userId);
   }
 

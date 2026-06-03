@@ -91,7 +91,8 @@ export class TicketService {
 
     if (!pelanggan) {
       throw AppError.unprocessable({
-        message: 'Lengkapi data pelanggan terlebih dahulu sebelum memesan tiket',
+        message:
+          'Lengkapi data pelanggan terlebih dahulu sebelum memesan tiket',
       });
     }
 
@@ -139,10 +140,13 @@ export class TicketService {
       ),
     );
 
-    const invalidSeatIds = uniqueSeatIds.filter((seatId) => !allowedSeatIds.has(seatId));
+    const invalidSeatIds = uniqueSeatIds.filter(
+      (seatId) => !allowedSeatIds.has(seatId),
+    );
     if (invalidSeatIds.length > 0) {
       throw AppError.badRequest({
-        message: 'Ada kursi yang tidak sesuai dengan jadwal atau kereta yang dipilih',
+        message:
+          'Ada kursi yang tidak sesuai dengan jadwal atau kereta yang dipilih',
         details: { invalidSeatIds },
       });
     }
@@ -264,7 +268,9 @@ export class TicketService {
         ? Number(filters.pelangganId)
         : undefined;
       if (filters?.pelangganId && Number.isNaN(pelangganId)) {
-        throw AppError.badRequest({ message: 'pelangganId harus berupa angka' });
+        throw AppError.badRequest({
+          message: 'pelangganId harus berupa angka',
+        });
       }
 
       const tiket = await this.prisma.pembelianTiket.findMany({
@@ -475,7 +481,9 @@ export class TicketService {
   async getMonthlyRevenue(bulan?: string, tahun?: string) {
     try {
       const filter = this.buildPeriodeFilter(undefined, bulan, tahun);
-      const start = filter?.gte ?? new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const start =
+        filter?.gte ??
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1);
       const month = start.getMonth() + 1;
       const year = start.getFullYear();
 
@@ -494,7 +502,8 @@ export class TicketService {
         0,
       );
       const totalPemasukan = tiket.reduce(
-        (total, item) => total + item.detailPembelian.length * item.jadwal.harga,
+        (total, item) =>
+          total + item.detailPembelian.length * item.jadwal.harga,
         0,
       );
 
@@ -577,15 +586,18 @@ export class TicketService {
     try {
       await this.findTicketById(id);
 
-      const tiket = await this.prisma.pembelianTiket.delete({ where: { id } });
-
-      if (!tiket) {
-        throw AppError.notFound('Ticket', {
-          message: 'Gagal membatalkan tiket pesanan',
+      const tiket = await this.prisma.$transaction(async (tx) => {
+        await tx.detailPembelian.deleteMany({
+          where: { pembelianTiketId: id },
         });
-      }
+        return tx.pembelianTiket.delete({ where: { id } });
+      });
 
-      return tiket;
+      return {
+        success: true,
+        message: 'Tiket berhasil dibatalkan',
+        data: tiket,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -602,15 +614,18 @@ export class TicketService {
     try {
       await this.findOwnedTicketById(id, userId);
 
-      const tiket = await this.prisma.pembelianTiket.delete({ where: { id } });
-
-      if (!tiket) {
-        throw AppError.notFound('Ticket', {
-          message: 'Gagal membatalkan tiket pesanan',
+      const tiket = await this.prisma.$transaction(async (tx) => {
+        await tx.detailPembelian.deleteMany({
+          where: { pembelianTiketId: id },
         });
-      }
+        return tx.pembelianTiket.delete({ where: { id } });
+      });
 
-      return tiket;
+      return {
+        success: true,
+        message: 'Tiket berhasil dibatalkan',
+        data: tiket,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

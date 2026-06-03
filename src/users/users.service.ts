@@ -67,9 +67,7 @@ export class UsersService {
       const data: any = { ...updateUserDto };
 
       if (updateUserDto.password) {
-        data.password = await this.bcrypt.hashPassword(
-          updateUserDto.password,
-        );
+        data.password = await this.bcrypt.hashPassword(updateUserDto.password);
       }
 
       return await this.prisma.users.update({

@@ -37,10 +37,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Role(PrismaRole.ADMIN)
   @Patch('update/:id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return await this.usersService.update(+id, updateUserDto);
   }
 

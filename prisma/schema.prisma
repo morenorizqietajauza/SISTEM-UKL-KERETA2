@@ -115,7 +115,7 @@ model DetailPembelian {
   nama_penumpang String @db.VarChar(100)
 
   pembelianTiketId Int
-  pembelianTiket   PembelianTiket @relation(fields: [pembelianTiketId], references: [id])
+  pembelianTiket   PembelianTiket @relation(fields: [pembelianTiketId], references: [id], onDelete: Cascade)
 
   kursiId Int
   kursi   Kursi @relation(fields: [kursiId], references: [id])
