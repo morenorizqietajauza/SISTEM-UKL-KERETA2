@@ -258,7 +258,7 @@ export class JadwalService {
 
   async remove(id: number) {
     try {
-      const jadwal = await this.prisma.jadwal.delete({
+      const jadwal = await this.prisma.jadwal.findUnique({
         where: { id },
       });
 
@@ -267,6 +267,13 @@ export class JadwalService {
           message: 'Jadwal tidak ditemukan',
         });
       }
+
+      await this.prisma.$transaction(async (tx) => {
+        await tx.pembelianTiket.deleteMany({
+          where: { jadwalId: id },
+        });
+        await tx.jadwal.delete({ where: { id } });
+      });
 
       return jadwal;
     } catch (error) {

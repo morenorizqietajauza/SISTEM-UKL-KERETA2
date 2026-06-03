@@ -101,13 +101,61 @@ export class KeretaService {
 
   async remove(id: number) {
     try {
-      const kereta = await this.prisma.kereta.delete({ where: { id } });
+      const kereta = await this.prisma.kereta.findUnique({ where: { id } });
 
       if (!kereta) {
         throw AppError.notFound('Train', {
-          message: 'Gagal menemukan data kerete',
+          message: 'Gagal menemukan data kereta',
         });
       }
+
+      await this.prisma.$transaction(async (tx) => {
+        const gerbongs = await tx.gerbong.findMany({
+          where: { keretaId: id },
+          select: { id: true },
+        });
+        const gerbongIds = gerbongs.map((g) => g.id);
+
+        const kursiList =
+          gerbongIds.length > 0
+            ? await tx.kursi.findMany({
+                where: { gerbongId: { in: gerbongIds } },
+                select: { id: true },
+              })
+            : [];
+        const kursiIds = kursiList.map((k) => k.id);
+
+        const jadwals = await tx.jadwal.findMany({
+          where: { keretaId: id },
+          select: { id: true },
+        });
+        const jadwalIds = jadwals.map((j) => j.id);
+
+        if (kursiIds.length > 0) {
+          await tx.detailPembelian.deleteMany({
+            where: { kursiId: { in: kursiIds } },
+          });
+        }
+
+        if (jadwalIds.length > 0) {
+          await tx.pembelianTiket.deleteMany({
+            where: { jadwalId: { in: jadwalIds } },
+          });
+        }
+
+        if (gerbongIds.length > 0) {
+          await tx.kursi.deleteMany({
+            where: { gerbongId: { in: gerbongIds } },
+          });
+          await tx.gerbong.deleteMany({ where: { keretaId: id } });
+        }
+
+        if (jadwalIds.length > 0) {
+          await tx.jadwal.deleteMany({ where: { keretaId: id } });
+        }
+
+        await tx.kereta.delete({ where: { id } });
+      });
 
       return kereta;
     } catch (error) {
