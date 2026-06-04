@@ -69,16 +69,17 @@ export class JadwalService {
       const jadwal = await this.prisma.jadwal.findMany({
         where: {
           asal_keberangkatan: filters?.asal
-            ? { contains: filters.asal }
+            ? { contains: filters.asal, mode: 'insensitive' }
             : undefined,
           tujuan_keberangkatan: filters?.tujuan
-            ? { contains: filters.tujuan }
+            ? { contains: filters.tujuan, mode: 'insensitive' }
             : undefined,
           tanggal_berangkat: this.buildTanggalFilter(filters?.tanggal),
           kereta: filters?.kelas
             ? {
                 kelas: {
                   contains: filters.kelas,
+                  mode: 'insensitive',
                 },
               }
             : undefined,
