@@ -102,6 +102,7 @@ export class AuthService {
           username: user.username,
           role: user.role,
         },
+        message: 'Login berhasil',
       };
     } catch (error) {
       if (error instanceof HttpException) {
